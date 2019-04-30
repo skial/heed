@@ -1,0 +1,15 @@
+-lib html-entities
+-lib tink_unittest
+
+-cp src
+-cp test
+
+-dce full
+-D analyzer-optimize
+
+-main Main
+
+--each
+
+-lib hxnodejs
+-js bin/he.js
