@@ -25,7 +25,7 @@ class Util {
                 cache.set( '$codepoint', mapExpr.push( expr ) );
 
             } else {
-                trace( entity, (entity:Array<Int>) ); // TODO check this
+                //trace( entity, (entity:Array<Int>) ); // TODO check this
 
             }
 
