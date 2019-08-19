@@ -159,7 +159,10 @@ using rxpattern.UnicodePatternUtil;
                 // Decode decimal escapes, e.g. `&#119558;`.
                 var simi = ereg.matched(5);
                 if (strict && (semi == null || semi == '')) throw 'character reference was not terminated by a semilcolon';
-                var codepoint = @:nullSafety(Off) Std.parseInt(digit);
+                if (digit.length > 6) digit = digit.substring(0, 6);
+                var codepoint = Std.parseInt(digit);
+                if (codepoint == null) codepoint = 0;
+                if (codepoint < 0) codepoint = -codepoint;
                 return codePointToSymbol(codepoint, strict);
             }
             
@@ -167,7 +170,9 @@ using rxpattern.UnicodePatternUtil;
                 // Decode hexadecimal escapes, e.g. `&#x1D306;`.
                 var semi = ereg.matched(7);
                 if (strict && (semi == null || semi == '')) throw 'character reference was not terminated by a semilcolon';
-                var codepoint = @:nullSafety(Off) Std.parseInt('0x$digit');
+                if (digit.length > 6) digit = digit.substring(0, 6);
+                var codepoint = Std.parseInt('0x$digit');
+                if (codepoint == null) codepoint = 0;
                 if (codepoint < 0) codepoint = -codepoint;
                 return codePointToSymbol(codepoint, strict);
             }

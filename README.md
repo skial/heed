@@ -4,10 +4,14 @@
 
 Port of [he](https://github.com/mathiasbynens/he), which it MIT licensed.
 
+| Php | Python | Java/JVM | C# | Js/Node | Interp | Neko | HashLink | Lua | CPP |
+| - | -| - | - | - | -| - | - | - | - |
+| ✅ | ✅     | ✅  | ✅ | ✅     | ✅ | ✅  | ✅       | ➖ | ➖ |
+
 ## Installation
 
 `lix install gh:skial/heed`
 
 #### Notes
 
-- NUL characters on HashLink are not supported.
+- The NUL character on HashLink is not supported.

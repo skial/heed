@@ -1,5 +1,4 @@
 -D html-entities=0.0.1-alpha
-# @install: lix --silent download "gh://github.com/skial/html-entities#38d03f64190621477e3428a9ed94a3112d352011" into html-entities/0.0.1-alpha/github/38d03f64190621477e3428a9ed94a3112d352011
+# @install: lix --silent download "gh://github.com/skial/html-entities#3ca99e8e0e5c7f6eadc14a51eedd87627ab04c10" into html-entities/0.0.1-alpha/github/3ca99e8e0e5c7f6eadc14a51eedd87627ab04c10
 -lib seri
--lib unifill
--cp ${HAXE_LIBCACHE}/html-entities/0.0.1-alpha/github/38d03f64190621477e3428a9ed94a3112d352011/src
+-cp ${HAXE_LIBCACHE}/html-entities/0.0.1-alpha/github/3ca99e8e0e5c7f6eadc14a51eedd87627ab04c10/src

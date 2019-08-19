@@ -1,11 +1,11 @@
+-lib rxpattern
 -lib html-entities
 -lib tink_unittest
--lib rxpattern
 
 -cp src
 -cp test
 
-#-debug
+-debug
 -dce full
 -D analyzer-optimize
 
@@ -32,10 +32,10 @@
 
 -hl bin/he.hl
 
-#--next
-## Java error: Code Too Large. Need to break abstract methods into `.properties` or some other format.
-#-java bin/java
-#
+--next
+
+-java bin/java
+
 --next
 
 -D jvm
@@ -45,7 +45,6 @@
 
 -cs bin/cs
 
-#--next
-#
-### Macro only code being ref
-#--interp
+--next
+
+--interp

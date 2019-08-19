@@ -10,7 +10,7 @@
     "url": "https://github.com/skial/heed",
     "dependencies": {
         "rxpattern": "git:https://github.com/skial/rxpattern#d9362da1f45402eefef28bf99fd9334639703118",
-        "html-entities":"git:https://github.com/skial/html-entities#38d03f64190621477e3428a9ed94a3112d352011",
+        "html-entities":"git:https://github.com/skial/html-entities#3ca99e8e0e5c7f6eadc14a51eedd87627ab04c10",
         "tink_unittest":"git:https://github.com/haxetink/tink_unittest.git#0b0c7de647e522ca42662e2cdfc59e21ed8d4eb4"
     }
 }

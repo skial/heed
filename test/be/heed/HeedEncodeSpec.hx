@@ -38,11 +38,6 @@ class HeedEncodeSpec {
     @:variant('\u00E4\u00F6\u00FC\u00C4\u00D6\u00DC', '&auml;&ouml;&uuml;&Auml;&Ouml;&Uuml;', false, true, true)
     public function testEncode(value:String, output:String, everything:Bool = false, named:Bool = false, decimal:Bool = false, unsafe:Bool = false) {
         asserts.assert( encode(value, everything, named, decimal, unsafe) == output );
-        /*#if js 
-        asserts.assert( 
-            He.encode(value, {encodeEverything:everything, useNamedReference:named, allowUnsafeSymbols:unsafe, decimal:decimal}) 
-            == encode(value, everything, named, decimal, unsafe) );
-        #end*/
         return asserts.done();
     }
 
