@@ -2,7 +2,7 @@
 
 > Html Entity encoder, escaper and decoder
 
-Port of [he](https://github.com/mathiasbynens/he), which it MIT licensed.
+Port of [he](https://github.com/mathiasbynens/he).
 
 | Php | Python | Java/JVM | C# | Js/Node | Interp | Neko | HashLink | Lua | CPP |
 | - | -| - | - | - | -| - | - | - | - |
