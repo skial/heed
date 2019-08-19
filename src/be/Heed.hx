@@ -2,14 +2,13 @@ package be;
 
 import be.heed.Hex;
 import be.heed.Decimal;
-import uhx.sys.HtmlEntity;
 import unifill.Unicode.*;
-import uhx.sys.seri.Range;
-import uhx.sys.seri.Ranges;
-import rxpattern.RxPattern;
+import uhx.sys.HtmlEntity;
 import rxpattern.internal.EReg;
 
+#if php
 using be.Heed;
+#end
 using unifill.InternalEncoding;
 using rxpattern.UnicodePatternUtil;
 
@@ -100,7 +99,8 @@ using rxpattern.UnicodePatternUtil;
             value = new EReg('&lt;\\u20D2'.translate(), 'ug').replace(value, nvlt);
 
             value = regexEncodeNonAscii
-            #if php .phpMap #else .map #end( value, ereg -> @:nullSafety(Off) encodeMap.get( '' + unifill.InternalEncoding.codePointAt(ereg.matched(0), 0) ) );
+            #if php .phpMap #else .map #end
+            ( value, ereg -> @:nullSafety(Off) encodeMap.get( '' + unifill.InternalEncoding.codePointAt(ereg.matched(0), 0) ) );
 
         } else if (!unsafe) {
             value = new EReg("[\"&'<>`]", 'g').map( value, @:nullSafety(Off) ereg -> {
@@ -113,7 +113,7 @@ using rxpattern.UnicodePatternUtil;
         value = be.heed.macros.Util.get_regexAstralSymbol()
         #if php .phpMap #else .map #end( value, @:nullSafety(Off) e -> {
             var char = e.matched(0);
-            var codepoint = '' + unifill.InternalEncoding.codePointAt(char, 0);
+            var codepoint = unifill.InternalEncoding.codePointAt(char, 0);
             decimal ? (codepoint:Decimal) : (codepoint:Hex);
         }) ;
         
@@ -215,7 +215,7 @@ using rxpattern.UnicodePatternUtil;
         return result;
     }
 
-    public static final encodeMap:Map<String, String> = be.heed.Util.htmlEntityMap();
+    public static final encodeMap:Map<String, String> = be.heed.macros.Util.entityMap();
     public static final regexEncodeNonAscii = be.heed.macros.Util.get_regexEncodeNonAscii();
     public static final decodeMapLegacy:Map<String, Array<Int>> = [
         aacute => (aacute:Array<Int>),

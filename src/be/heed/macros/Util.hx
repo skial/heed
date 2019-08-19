@@ -4,6 +4,7 @@ package be.heed.macros;
 import sys.FileSystem;
 import haxe.macro.Expr;
 import haxe.macro.Context;
+import uhx.sys.HtmlEntity;
 import uhx.sys.seri.Range;
 import uhx.sys.seri.Ranges;
 import rxpattern.RxPattern;
@@ -149,5 +150,29 @@ class Util {
         var opt = 'ug';
         return macro @:pos(pos) new rxpattern.internal.EReg($v{str}, $v{opt});
     }
+
+    public static macro function entityMap():ExprOf<Map<String, String>> {
+        var cache:Map<String, Int> = [];
+        var mapExpr = [];
+        
+        for (entity in HtmlEntity.all()) {
+            var codepoint:Array<Int> = entity;
+
+            if (!cache.exists('$codepoint')) {
+                var codepointExpr = macro $v{ codepoint.map( i -> '$i' ).join('') };
+                var expr = macro $codepointExpr => $v{entity};
+
+                cache.set( '$codepoint', mapExpr.push( expr ) );
+
+            } else {
+                //trace( entity, (entity:Array<Int>) ); // TODO check this
+
+            }
+
+        }
+
+        return macro [$a{mapExpr}];
+    }
+
 
 }
