@@ -12,14 +12,14 @@ using be.Heed;
 using unifill.InternalEncoding;
 using rxpattern.UnicodePatternUtil;
 
-@:nullSafety(Strict) class Heed {
+class Heed {
 
     public static final regexAsciiWhitelist:EReg = new EReg('[\\u0001-\\u007F]'.translate(), 'ug');
     
     public static final escapeMap:Map<String, String> = ['"' => quot, '&' => amp, '\'' => '&#x27;', '<' => lt, '>' => gt, '`' => '&#x60;'];
 
     public static inline function escape(value:String):String {
-        return ~/["&'<>`]/g.map( value, @:nullSafety(Off) e -> escapeMap.get(e.matched(0) ) );
+        return ~/["&'<>`]/g.map( value, e -> escapeMap.get(e.matched(0) ) );
     }
 
     #if php
@@ -35,7 +35,7 @@ using rxpattern.UnicodePatternUtil;
     public static function encode(value:String, everything:Bool = false, named:Bool = false, decimal:Bool = false, unsafe:Bool = false):String {
         if (everything) {
             #if !php
-            value = regexAsciiWhitelist.map(value, @:nullSafety(Off) function(ereg) {
+            value = regexAsciiWhitelist.map(value, function(ereg) {
                 var str = ereg.matched(0);
                 var symbol = str.charCodeAt(0);
                 return if (named && encodeMap.exists('$symbol')) {
@@ -50,7 +50,7 @@ using rxpattern.UnicodePatternUtil;
             if (regexAsciiWhitelist.match(value)) {
                 var buf = new StringBuf();
 
-                for (idx in 0...value.length) @:nullSafety(Off) {
+                for (idx in 0...value.length) {
                     var symbol = value.charCodeAt(idx);
 
                     if (symbol >= 0x01 && symbol <= 0x7F) {
@@ -82,7 +82,7 @@ using rxpattern.UnicodePatternUtil;
 
             if (named) {
                 value = regexEncodeNonAscii
-                #if php .phpMap #else .map #end( value,  @:nullSafety(Off) e -> {
+                #if php .phpMap #else .map #end( value,  e -> {
                     encodeMap.get( '' + unifill.InternalEncoding.codePointAt(e.matched(0), 0) );
                 } );
                 
@@ -91,7 +91,7 @@ using rxpattern.UnicodePatternUtil;
         } else if (named) {
             if (!unsafe) {
                 value = new EReg("[\"&'<>`]", 'g')
-                .map( value, e -> @:nullSafety(Off) encodeMap.get( '' + unifill.InternalEncoding.codePointAt(e.matched(0), 0) ) );
+                .map( value, e -> encodeMap.get( '' + unifill.InternalEncoding.codePointAt(e.matched(0), 0) ) );
 
             }
 
@@ -100,10 +100,10 @@ using rxpattern.UnicodePatternUtil;
 
             value = regexEncodeNonAscii
             #if php .phpMap #else .map #end
-            ( value, ereg -> @:nullSafety(Off) encodeMap.get( '' + unifill.InternalEncoding.codePointAt(ereg.matched(0), 0) ) );
+            ( value, ereg -> encodeMap.get( '' + unifill.InternalEncoding.codePointAt(ereg.matched(0), 0) ) );
 
         } else if (!unsafe) {
-            value = new EReg("[\"&'<>`]", 'g').map( value, @:nullSafety(Off) ereg -> {
+            value = new EReg("[\"&'<>`]", 'g').map( value, ereg -> {
                 var symbol = unifill.InternalEncoding.codePointAt(ereg.matched(0), 0);
                 decimal ? (symbol:Decimal) : (symbol:Hex);
             } );
@@ -111,7 +111,7 @@ using rxpattern.UnicodePatternUtil;
         }
         
         value = be.heed.macros.Util.get_regexAstralSymbol()
-        #if php .phpMap #else .map #end( value, @:nullSafety(Off) e -> {
+        #if php .phpMap #else .map #end( value, e -> {
             var char = e.matched(0);
             var codepoint = unifill.InternalEncoding.codePointAt(char, 0);
             decimal ? (codepoint:Decimal) : (codepoint:Hex);
@@ -119,7 +119,7 @@ using rxpattern.UnicodePatternUtil;
         
         var regexBmpWhitelist = be.heed.macros.Util.get_regexBmpWhitelist();
         value = regexBmpWhitelist
-        #if php .phpMap #else .map #end( value, e -> @:nullSafety(Off) {
+        #if php .phpMap #else .map #end( value, e -> {
             var symbol = unifill.InternalEncoding.codePointAt(e.matched(0), 0);
             decimal ? (symbol:Decimal) : (symbol:Hex);
         } );
@@ -149,7 +149,7 @@ using rxpattern.UnicodePatternUtil;
 
                 } else {
                     if (strict) throw 'named character reference was not terminated by a semicolon';
-                    return @:nullSafety(Off) decodeMapLegacy.get('&$ref;').fromCodePoints().toString() + (next != null ? next : '');
+                    return decodeMapLegacy.get('&$ref;').fromCodePoints().toString() + (next != null ? next : '');
 
                 }
 
@@ -197,7 +197,7 @@ using rxpattern.UnicodePatternUtil;
             if (strict) {
                 throw 'disallowed character reference';
             }
-            return @:nullSafety(Off) decodeMapNumeric.get(codepoint);
+            return decodeMapNumeric.get(codepoint);
         }
 
         if (strict && invalidReferenceCodePoints.indexOf(codepoint) > -1) {
