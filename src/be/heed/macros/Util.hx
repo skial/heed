@@ -64,8 +64,7 @@ abstract Paths(String) from String to String {
 }
 
 abstract Errors(String) to String {
-    public static var NoDefines = 'Pass either `-D $DryRun` or `-D $Save` to the command `haxe build.data.hxml`.';
-    public static var NoSubmodule = 'The directory ${Paths.HeDir} does not exist. Run the necessary git submodule commands.';
+    public static var NoSubmodule = 'The directory ${Paths.HeDir} does not exist. Add `https://github.com/mathiasbynens/he/` as a submodule or local directory.';
 }
 #end
 
