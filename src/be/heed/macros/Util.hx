@@ -49,6 +49,7 @@ abstract Paths(String) from String to String {
     public static var Cwd:Paths = Sys.getCwd();
     public static var HeDir:Paths = '$Cwd/he/';
     public static var HeData:Paths = '$HeDir/data/';
+    public static var EncodeMap:Paths = '$HeData/encode-map.json';
     public static var EncodeLonePoints:Paths = '$HeData/encode-lone-code-points.json';
     public static var EncodePairedSymbols:Paths = '$HeData/encode-paired-symbols.json';
     public static var DecodeCodePointsOverrides:Paths = '$HeData/decode-code-points-overrides.json';
@@ -150,27 +151,23 @@ class Util {
         return macro @:pos(pos) new rxpattern.internal.EReg($v{str}, $v{opt});
     }
 
-    public static macro function entityMap():ExprOf<Map<String, String>> {
-        var cache:Map<String, Int> = [];
-        var mapExpr = [];
-        
-        for (entity in HtmlEntity.all()) {
-            var codepoint:Array<Int> = entity;
+    public static macro function entityKeys():ExprOf<Array<String>> {
+        var pos = Context.currentPos();
+        if (!EncodeMap) Context.error('Cannot find ${EncodeMap}', pos);
+        var values:haxe.DynamicAccess<String> = haxe.Json.parse(EncodeMap.getContent());
+        var keys = [for (k in values.keys()) macro $v{k}];
+        return macro $a{keys};
+    }
 
-            if (!cache.exists('$codepoint')) {
-                var codepointExpr = macro $v{ codepoint.map( i -> '$i' ).join('') };
-                var expr = macro $codepointExpr => $v{entity};
+    public static macro function entityHash():Expr {
+        var pos = Context.currentPos();
+        if (!EncodeMap) Context.error('Cannot find ${EncodeMap}', pos);
+        var values:haxe.DynamicAccess<String> = haxe.Json.parse(EncodeMap.getContent());
+        var mph = new hash.Mph();
+        var map = [for (key in values.keys()) key => values.get(key)];
+        var table = mph.build( map, hash.Mph.HashString );
 
-                cache.set( '$codepoint', mapExpr.push( expr ) );
-
-            } else {
-                //trace( entity, (entity:Array<Int>) ); // TODO check this
-
-            }
-
-        }
-
-        return macro [$a{mapExpr}];
+        return macro $e{ hash.Mph.asExpr(table) };
     }
 
 

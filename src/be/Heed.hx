@@ -6,9 +6,8 @@ import unifill.Unicode.*;
 import uhx.sys.HtmlEntity;
 import rxpattern.internal.EReg;
 
-#if php
 using be.Heed;
-#end
+
 using unifill.InternalEncoding;
 using rxpattern.UnicodePatternUtil;
 
@@ -37,11 +36,11 @@ class Heed {
             #if !php
             value = regexAsciiWhitelist.map(value, function(ereg) {
                 var str = ereg.matched(0);
-                var symbol = str.charCodeAt(0);
-                return if (named && encodeMap.exists('$symbol')) {
-                    encodeMap.get('$symbol');
+                return if (named && entityHash.exists(str)) {
+                    '&' + entityHash.get(str) + ';';
 
                 } else {
+                    var symbol = str.charCodeAt(0);
                     decimal ? (symbol:Decimal) : (symbol:Hex);
                     
                 }
@@ -54,8 +53,8 @@ class Heed {
                     var symbol = value.charCodeAt(idx);
 
                     if (symbol >= 0x01 && symbol <= 0x7F) {
-                        if (named && encodeMap.exists('$symbol')) {
-                            buf.add(encodeMap.get('$symbol'));
+                        if (named && entityHash.exists(value.charAt(idx))) {
+                            buf.add('&' + entityHash.get(value.charAt(idx)) + ';');
 
                         } else {
                             buf.add( ((decimal ? (symbol:Decimal) : (symbol:Hex)):String) );
@@ -83,7 +82,7 @@ class Heed {
             if (named) {
                 value = regexEncodeNonAscii
                 #if php .phpMap #else .map #end( value,  e -> {
-                    encodeMap.get( '' + unifill.InternalEncoding.codePointAt(e.matched(0), 0) );
+                    '&' + entityHash.get( e.matched(0) ) + ';';
                 } );
                 
             }
@@ -91,7 +90,7 @@ class Heed {
         } else if (named) {
             if (!unsafe) {
                 value = new EReg("[\"&'<>`]", 'g')
-                .map( value, e -> encodeMap.get( '' + unifill.InternalEncoding.codePointAt(e.matched(0), 0) ) );
+                .map( value, e -> '&' + entityHash.get( e.matched(0) ) + ';' );
 
             }
 
@@ -100,7 +99,10 @@ class Heed {
 
             value = regexEncodeNonAscii
             #if php .phpMap #else .map #end
-            ( value, ereg -> encodeMap.get( '' + unifill.InternalEncoding.codePointAt(ereg.matched(0), 0) ) );
+            ( value, ereg -> {
+                var c = ereg.matched(0);
+                '&' + entityHash.get( c ) + ';';
+            } );
 
         } else if (!unsafe) {
             value = new EReg("[\"&'<>`]", 'g').map( value, ereg -> {
@@ -134,7 +136,7 @@ class Heed {
             var digit:Null<String> = null;
 
             if ((ref = ereg.matched(1)) != null) {
-                return ((cast ('&$ref;'):HtmlEntity):Array<Int>).fromCodePoints();
+                return (cast ref:HtmlEntity).asCodePoints().fromCodePoints();
 
             }
 
@@ -149,7 +151,13 @@ class Heed {
 
                 } else {
                     if (strict) throw 'named character reference was not terminated by a semicolon';
-                    return decodeMapLegacy.get('&$ref;').fromCodePoints().toString() + (next != null ? next : '');
+                    if (decodeLegacyKeys.indexOf(cast ref) > -1) {
+                        return (cast ref:HtmlEntity)
+                            .asCodePoints()
+                            .fromCodePoints()
+                            .toString() +
+                            (next != null ? next : '');
+                    }
 
                 }
 
@@ -215,116 +223,18 @@ class Heed {
         return result;
     }
 
-    public static final encodeMap:Map<String, String> = be.heed.macros.Util.entityMap();
+    private static inline function exists(table:hash.Mph.Table<Int, String>, value:String):Bool {
+        return entityKeys.indexOf(value) > -1;
+    }
+    private static final mph:hash.Mph = new hash.Mph();
+
+    private static function get(table:hash.Mph.Table<Int, String>, value:String):Null<String> {
+        return mph.get(table, value, hash.Mph.HashString);
+    }
+    public static final entityKeys:Array<String> = be.heed.macros.Util.entityKeys();
+    public static final entityHash:hash.Mph.Table<Int, String> = be.heed.macros.Util.entityHash();
     public static final regexEncodeNonAscii = be.heed.macros.Util.get_regexEncodeNonAscii();
-    public static final decodeMapLegacy:Map<String, Array<Int>> = [
-        aacute => (aacute:Array<Int>),
-        Aacute => (Aacute:Array<Int>),
-        acirc => (acirc:Array<Int>),
-        Acirc => (Acirc:Array<Int>),
-        acute => (acute:Array<Int>),
-        aelig => (aelig:Array<Int>),
-        AElig => (AElig:Array<Int>),
-        agrave => (agrave:Array<Int>),
-        Agrave => (Agrave:Array<Int>),
-        amp => (amp:Array<Int>),
-        AMP => (AMP:Array<Int>),
-        aring => (aring:Array<Int>),
-        Aring => (Aring:Array<Int>),
-        atilde => (atilde:Array<Int>),
-        Atilde => (Atilde:Array<Int>),
-        auml => (auml:Array<Int>),
-        Auml => (Auml:Array<Int>),
-        brvbar => (brvbar:Array<Int>),
-        ccedil => (ccedil:Array<Int>),
-        Ccedil => (Ccedil:Array<Int>),
-        cedil => (cedil:Array<Int>),
-        cent => (cent:Array<Int>),
-        copy => (copy:Array<Int>),
-        COPY => (COPY:Array<Int>),
-        curren => (curren:Array<Int>),
-        deg => (deg:Array<Int>),
-        divide => (divide:Array<Int>),
-        eacute => (eacute:Array<Int>),
-        Eacute => (Eacute:Array<Int>),
-        ecirc => (ecirc:Array<Int>),
-        Ecirc => (Ecirc:Array<Int>),
-        egrave => (egrave:Array<Int>),
-        Egrave => (Egrave:Array<Int>),
-        eth => (eth:Array<Int>),
-        ETH => (ETH:Array<Int>),
-        euml => (euml:Array<Int>),
-        Euml => (Euml:Array<Int>),
-        frac12 => (frac12:Array<Int>),
-        frac14 => (frac14:Array<Int>),
-        frac34 => (frac34:Array<Int>),
-        gt => (gt:Array<Int>),
-        GT => (GT:Array<Int>),
-        iacute => (iacute:Array<Int>),
-        Iacute => (Iacute:Array<Int>),
-        icirc => (icirc:Array<Int>),
-        Icirc => (Icirc:Array<Int>),
-        iexcl => (iexcl:Array<Int>),
-        igrave => (igrave:Array<Int>),
-        Igrave => (Igrave:Array<Int>),
-        iquest => (iquest:Array<Int>),
-        iuml => (iuml:Array<Int>),
-        Iuml => (Iuml:Array<Int>),
-        laquo => (laquo:Array<Int>),
-        lt => (lt:Array<Int>),
-        LT => (LT:Array<Int>),
-        macr => (macr:Array<Int>),
-        micro => (micro:Array<Int>),
-        middot => (middot:Array<Int>),
-        nbsp => (nbsp:Array<Int>),
-        not => (not:Array<Int>),
-        ntilde => (ntilde:Array<Int>),
-        Ntilde => (Ntilde:Array<Int>),
-        oacute => (oacute:Array<Int>),
-        Oacute => (Oacute:Array<Int>),
-        ocirc => (ocirc:Array<Int>),
-        Ocirc => (Ocirc:Array<Int>),
-        ograve => (ograve:Array<Int>),
-        Ograve => (Ograve:Array<Int>),
-        ordf => (ordf:Array<Int>),
-        ordm => (ordm:Array<Int>),
-        oslash => (oslash:Array<Int>),
-        Oslash => (Oslash:Array<Int>),
-        otilde => (otilde:Array<Int>),
-        Otilde => (Otilde:Array<Int>),
-        ouml => (ouml:Array<Int>),
-        Ouml => (Ouml:Array<Int>),
-        para => (para:Array<Int>),
-        plusmn => (plusmn:Array<Int>),
-        pound => (pound:Array<Int>),
-        quot => (quot:Array<Int>),
-        QUOT => (QUOT:Array<Int>),
-        raquo => (raquo:Array<Int>),
-        reg => (reg:Array<Int>),
-        REG => (REG:Array<Int>),
-        sect => (sect:Array<Int>),
-        shy => (shy:Array<Int>),
-        sup1 => (sup1:Array<Int>),
-        sup2 => (sup2:Array<Int>),
-        sup3 => (sup3:Array<Int>),
-        szlig => (szlig:Array<Int>),
-        thorn => (thorn:Array<Int>),
-        THORN => (THORN:Array<Int>),
-        times => (times:Array<Int>),
-        uacute => (uacute:Array<Int>),
-        Uacute => (Uacute:Array<Int>),
-        ucirc => (ucirc:Array<Int>),
-        Ucirc => (Ucirc:Array<Int>),
-        ugrave => (ugrave:Array<Int>),
-        Ugrave => (Ugrave:Array<Int>),
-        uml => (uml:Array<Int>),
-        uuml => (uuml:Array<Int>),
-        Uuml => (Uuml:Array<Int>),
-        yacute => (yacute:Array<Int>),
-        Yacute => (Yacute:Array<Int>),
-        yen => (yen:Array<Int>),
-        yuml => (yuml:Array<Int>),
-    ];
+    public static final decodeLegacyKeys:Array<HtmlEntity> = [aacute, Aacute, acirc, Acirc, acute, aelig, AElig, agrave, Agrave, amp, AMP, aring, Aring, atilde, Atilde, auml, Auml, brvbar, ccedil, Ccedil, cedil, cent, copy, COPY, curren, deg, divide, eacute, Eacute, ecirc, Ecirc, egrave, Egrave, eth, ETH, euml, Euml, frac12, frac14, frac34, gt, GT, iacute, Iacute, icirc, Icirc, iexcl, igrave, Igrave, iquest, iuml, Iuml, laquo, lt, LT, macr, micro, middot, nbsp, not, ntilde, Ntilde, oacute, Oacute, ocirc, Ocirc, ograve, Ograve, ordf, ordm, oslash, Oslash, otilde, Otilde, ouml, Ouml, para, plusmn, pound, quot, QUOT, raquo, reg, REG, sect, shy, sup1, sup2, sup3, szlig, thorn, THORN, times, uacute, Uacute, ucirc, Ucirc, ugrave, Ugrave, uml, uuml, Uuml, yacute, Yacute, yen];
     public static final invalidReferenceCodePoints = [1,2,3,4,5,6,7,8,11,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,64976,64977,64978,64979,64980,64981,64982,64983,64984,64985,64986,64987,64988,64989,64990,64991,64992,64993,64994,64995,64996,64997,64998,64999,65000,65001,65002,65003,65004,65005,65006,65007,65534,65535,131070,131071,196606,196607,262142,262143,327678,327679,393214,393215,458750,458751,524286,524287,589822,589823,655358,655359,720894,720895,786430,786431,851966,851967,917502,917503,983038,983039,1048574,1048575,1114110,1114111];
     public static final decodeMapNumeric:Map<Int, String> = [
         0 => '\u{FFFD}',
